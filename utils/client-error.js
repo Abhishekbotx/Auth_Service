@@ -1,12 +1,12 @@
 const AppError = require('./app-error');
 class ClientError extends AppError {
-    constructor(name, message, explanation, statusCode) {
+    constructor(name, message, explaination, statusCode) {
 
 
         super(
             name,
             message,
-            explanation,
+            explaination,
             statusCode
         );
 

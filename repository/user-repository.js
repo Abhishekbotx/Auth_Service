@@ -48,7 +48,7 @@ class UserRepository {
             throw error;
         }
     }
-
+  
     async getByEmail(email) {
         try {
             const user = await User.findOne({
@@ -64,7 +64,6 @@ class UserRepository {
                 )
             }
             return user;
-            return user;
         } catch (error) {
             console.log("Something went wrong on repository layer");
             throw error;
@@ -74,16 +73,19 @@ class UserRepository {
     
     async isAdmin(userId) {
         try {
-            const user = await User.findByPk(userId);
+            const user = await this.getUserById(userId);
+            
             const adminRole = await Role.findOne({
                 where: {
                     name: 'ADMIN'
                 }
             });
             return user.hasRole(adminRole);
-        } catch (error) {
-            console.error("Error occurred while checking admin status in repository layer:", error);
-            throw error
+        } catch (error) {   
+            throw new ClientError('ClientError',
+                                  'User is not admin',
+                                  'The sent email is not an admin',
+                                  StatusCodes.NOT_FOUND)
         }
     }
 

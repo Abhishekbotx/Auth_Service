@@ -16,14 +16,23 @@ const createUser = async (req, res) => {
             data: response
         });
     } catch (error) {
-        if (error.name === 'ValidationError') {
+        if (error.name == 'ValidationError') {
             return res.status(error.statusCode).json({
                 message: error.message,
                 success: false,
                 error: error.explanation,
                 data: {}
             });
-        } else {
+        } 
+        else if(error.name == 'ServiceError'){
+            return res.status(error.statusCode).json({
+                message: error.message,
+                success: false,
+                error: error.explaination,
+                data: {}
+            });
+        }
+        else {
             console.error('Error in controller:', error);
             return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                 message: error.message || 'Internal Server Error',
@@ -75,6 +84,7 @@ const isAuthenticated = async (req, res) => {
             data: response
         });
     } catch (error) {
+        
         if (error.name === 'ValidationError') {
             return res.status(error.statusCode).json({
                 message: error.message,
@@ -96,21 +106,32 @@ const isAuthenticated = async (req, res) => {
 
 const isAdmin = async (req, res) => {
     try {
-        const response = await userService.isAdmin(req.headers.id);
+        const response = await userService.isAdmin(req.body.id);
         return res.status(StatusCodes.OK).json({
             message: 'User is Admin',
             success: true,
             data: response
         });
     } catch (error) {
-        if (error.name === 'ValidationError') {
-            return res.status(error.statusCode).json({
+        console.error(error.explaination,error.statusCode);
+        if (error.name == 'ValidationError') {
+            return res.status(error.statusCode || StatusCodes.NOT_FOUND).json({
                 message: error.message,
                 success: false,
-                error: error.explanation,
+                errorexplaination:error.explanation,
                 data: {}
             });
-        } else {
+        } 
+        else if(error.name == 'ClientError'){
+            console.log('in client error')
+            return res.status(error.statusCode).json({
+                message: error.message ,
+                success: false,
+                error: error.explaination ,
+                data: {}
+            });
+        }
+        else {
             console.error('Error in controller:', error);
             return res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({
                 message: error.message || 'Internal Server Error',
@@ -119,6 +140,7 @@ const isAdmin = async (req, res) => {
                 data: {}
             });
         }
+        
     }
 }
 

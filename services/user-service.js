@@ -4,6 +4,7 @@ const { ServiceError, ValidationError } = require('../utils/index')
 const UserRepository = require('../repository/user-repository');
 const { JWT_KEY } = require('../config/serverConfig');
 const {AppError} = require('../utils/index');
+const { StatusCodes } = require('http-status-codes');
 
 class UserService {
     constructor() {
@@ -12,6 +13,13 @@ class UserService {
 
     async createUser(data) {
         try {
+            const res=await this.userRepository.getByEmail(data.email)
+            if(res){
+                throw new ServiceError(
+                    'User Already Present',
+                    'User is already registed with this email, Please try different email ',
+                    StatusCodes.CONFLICT)
+            }
             const user = await this.userRepository.create(data);
             return user;
         } catch (error) {
@@ -99,6 +107,7 @@ class UserService {
         try {
             return this.userRepository.isAdmin(userId);
         } catch (error) {
+            console.error(error)
             console.log("Something went wrong in service layer");
             throw error;
         }
