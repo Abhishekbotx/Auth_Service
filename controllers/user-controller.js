@@ -37,7 +37,7 @@ const createUser = async (req, res) => {
 
 const signin = async (req, res) => {
     try {
-        const response = await userService.signin({
+        const response = await userService.signIn({
             email: req.body.email,
             password: req.body.password
         });

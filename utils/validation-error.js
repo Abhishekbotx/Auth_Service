@@ -4,15 +4,16 @@ const { StatusCodes } = require('http-status-codes');
 class ValidationError extends AppError {
     constructor(error) {
         let errorName = error.name;
-        let explanation = [];
+        let explaination = [];
         error.errors.forEach((err) => {
-            explanation.push(err.message);
+            explaination.push(err.message);
+            console.log(err.message)
         });
 
         super(
             errorName,
             'Not able to validate the data sent in the request',
-            explanation,
+            explaination,
             StatusCodes.BAD_REQUEST
         );
     }

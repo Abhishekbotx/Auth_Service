@@ -32,6 +32,6 @@ router.post(
     AuthRequestValidators.validateUserAuth,
     UserController.createUser
 );
-rou
+
 
 module.exports = router;

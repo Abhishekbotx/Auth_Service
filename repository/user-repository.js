@@ -1,22 +1,19 @@
 const { User, Role } = require('../models/index');
-const {AppError} = require('../utils/');
+const {ClientError,ValidationError} = require('../utils/');
+const { StatusCodes } = require('http-status-codes');
 
 class UserRepository {
     async create(userData) {
         try {
-            const user = await User.create({
-                email: userData.email,
-                password: userData.password
-            });
+            const user = await User.create(userData);
             return user;
         } catch (error) {
-            console.error("Error occurred while creating user in repository layer:", error);
-            throw new AppError(
-                'CreateUserError',
-                'Error occurred while creating user',
-                error.message,
-                StatusCodes.INTERNAL_SERVER_ERROR
-            );
+            if(error.name == 'SequelizeValidationError') {
+                throw new ValidationError(error);
+            }
+            // console.error("Error occurred while creating user in repository layer:", error);
+            console.log("Something went wrong on repository layer");
+            throw error;
         }
     }
 
@@ -37,15 +34,18 @@ class UserRepository {
     async getUserById(userId) {
         try {
             const user = await User.findByPk(userId);
+            if(!user){
+                throw new ClientError(
+                    'AttributeNotFound',
+                    'Invalid Email Sent In The Request',
+                    'Please Check email, as there is no email associated with this email ',
+                    StatusCodes.NOT_FOUND
+                )
+            }
             return user;
         } catch (error) {
-            console.error("Error occurred while fetching user from userId in repository layer:", error);
-            throw new AppError(
-                'GetUserByIdError',
-                'Error occurred while fetching user by ID',
-                error.message,
-                StatusCodes.INTERNAL_SERVER_ERROR
-            );
+            console.log("Something went wrong on repository layer");
+            throw error;
         }
     }
 
@@ -54,20 +54,24 @@ class UserRepository {
             const user = await User.findOne({
                 where: {
                     email: email
-                }
-            });
+                }});
+            if(!user){
+                throw new ClientError(
+                    'AttributeNotFound',
+                    'Invalid Email Sent In The Request',
+                    'Please Check email, as there is no email associated with this email ',
+                    StatusCodes.NOT_FOUND
+                )
+            }
+            return user;
             return user;
         } catch (error) {
-            console.error("Error occurred while fetching user by email in repository layer:", error);
-            throw new AppError(
-                'GetUserByEmailError',
-                'Error occurred while fetching user by email',
-                error.message,
-                StatusCodes.INTERNAL_SERVER_ERROR
-            );
+            console.log("Something went wrong on repository layer");
+            throw error;
         }
     }
-
+    
+    
     async isAdmin(userId) {
         try {
             const user = await User.findByPk(userId);
@@ -79,12 +83,7 @@ class UserRepository {
             return user.hasRole(adminRole);
         } catch (error) {
             console.error("Error occurred while checking admin status in repository layer:", error);
-            throw new AppError(
-                'IsAdminError',
-                'Error occurred while checking admin status',
-                error.message,
-                StatusCodes.INTERNAL_SERVER_ERROR
-            );
+            throw error
         }
     }
 

@@ -39,14 +39,13 @@ module.exports = (sequelize, DataTypes) => {
     sequelize,
     modelName: 'User',
   });
-
-  User.beforeCreate((user) => {
-    const encryptedPassword = bcrypt.hashSync(user.password, SALT);
-    user.password = encryptedPassword;
+  User.beforeCreate(async (user) => {
+    try {
+      const hashedPassword = await bcrypt.hash(user.password,10)
+      user.password = hashedPassword;
+    } catch (error) {
+      throw new Error('Error hashing password before creating user');
+    }
   });
-  User.beforeCreate((user) => {
-    const encryptedpassword = bcrypt.hash(user.password, 10);
-    user.password = encryptedpassword
-  })
   return User;
 };
