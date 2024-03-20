@@ -8,7 +8,8 @@ const createUser = async (req, res) => {
     try {
         const response = await userService.createUser({
               email: req.body.email,
-              password: req.body.password
+              password: req.body.password,
+              otp:req.body.otp
         });
         return res.status(StatusCodes.CREATED).json({
             message: 'User created successfully',
@@ -77,7 +78,8 @@ const signin = async (req, res) => {
 
 const isAuthenticated = async (req, res) => {
     try {
-        const response = await userService.isAuthenticated(req.body.token);
+        const token = req.headers['x-access-token'];
+        const response = await userService.isAuthenticated(token);
         return res.status(StatusCodes.OK).json({
             message: 'User is Authenticated Successfully',
             success: true,
@@ -177,6 +179,19 @@ const addEmployee = async (req, res) => {
     }
 }
 
+const generateOtp=async(req,res)=>{
+    try {
+        const otp=userService.createOtp(req.body.email)
+        return res.json({
+            data:otp,
+            message:"otp created successfully"
+        })
+    } catch (error) {
+        console.log("Something went wrong in the controller");
+        throw error
+    }
+}
+
 /*const deleteEmployee = async (req, res) => { // in progress
     try {
         const response = await userService.deleteEmployees({
@@ -212,4 +227,4 @@ const addEmployee = async (req, res) => {
 
 }*/
 
-module.exports = { createUser, signin, isAuthenticated, isAdmin, addEmployee }
+module.exports = { createUser, signin, isAuthenticated,generateOtp, isAdmin, addEmployee }

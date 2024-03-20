@@ -55,14 +55,7 @@ class UserRepository {
                 where: {
                     email: email
                 }});
-            if(!user){
-                throw new ClientError(
-                    'AttributeNotFound',
-                    'Invalid Email Sent In The Request',
-                    'Please Check email, as there is no email associated with this email ',
-                    StatusCodes.NOT_FOUND
-                )
-            }
+            
             return user;
         } catch (error) {
             console.log("Something went wrong on repository layer");

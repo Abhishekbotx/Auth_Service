@@ -32,6 +32,11 @@ router.post(
     AuthRequestValidators.validateUserAuth,
     UserController.createUser
 );
+router.post(
+    '/generateOtp', 
+    
+    UserController.generateOtp
+);
 
 
 module.exports = router;

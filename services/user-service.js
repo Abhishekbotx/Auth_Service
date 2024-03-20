@@ -1,10 +1,13 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
+const otpgenerator=require('otp-generator');
+const {OTP}=require('../models/index')
 const { ServiceError, ValidationError } = require('../utils/index')
 const UserRepository = require('../repository/user-repository');
 const { JWT_KEY } = require('../config/serverConfig');
 const {AppError} = require('../utils/index');
 const { StatusCodes } = require('http-status-codes');
+const { where } = require('sequelize');
 
 class UserService {
     constructor() {
@@ -14,12 +17,35 @@ class UserService {
     async createUser(data) {
         try {
             const res=await this.userRepository.getByEmail(data.email)
+            console.log(data.otp)
             if(res){
                 throw new ServiceError(
                     'User Already Present',
                     'User is already registed with this email, Please try different email ',
                     StatusCodes.CONFLICT)
             }
+            
+            const response=await OTP.findOne({
+                where: { email: data.email },
+                order: [['createdAt', 'DESC']], // Sort by createdAt in descending order
+                limit: 1 
+            })
+            console.log("the data in resposne :",response.otp)
+            
+            if (response.otp === 0) {
+                // OTP not found for the email
+                return res.status(400).json({
+                  success: false,
+                  message: "The OTP was not found",
+                })
+              } else if (data.otp !== response.otp) {
+                // Invalid OTP
+                return res.status(400).json({
+                  success: false,
+                  message: "The OTP is not valid",
+                })
+              }
+
             const user = await this.userRepository.create(data);
             return user;
         } catch (error) {
@@ -91,6 +117,42 @@ class UserService {
         } catch (error) {
             console.log("Something went wrong in token validation", error);
             throw error;
+        }
+    }
+    async createOtp(email){
+        
+        try {
+            var otp= otpgenerator.generate(6,{
+                upperCaseAlphabets:false,
+                lowerCaseAlphabets:false,
+                specialChars:false
+            })
+
+            const result = await OTP.findOne({ 
+                where:{
+                    otp: otp,
+                    email:email
+                }
+             })
+
+            while(result){
+                otp=otpgenerator.generate(6,{
+                    upperCaseAlphabets:false,
+                    lowerCaseAlphabets:false,
+                    specialChars:false
+                })
+            }
+
+            const payload={
+                email,otp
+            }
+
+            const otpBody=await OTP.create(payload)
+            return otpBody
+            
+        } catch (error) {
+            console.log("Something went wrong in the service layer");
+            throw error
         }
     }
 
