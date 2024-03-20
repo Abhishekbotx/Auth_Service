@@ -181,7 +181,8 @@ const addEmployee = async (req, res) => {
 
 const generateOtp=async(req,res)=>{
     try {
-        const otp=userService.createOtp(req.body.email)
+        const otp=await userService.createOtp(req.body.email)
+        console.log(otp)
         return res.json({
             data:otp,
             message:"otp created successfully"
@@ -191,6 +192,25 @@ const generateOtp=async(req,res)=>{
         throw error
     }
 }
+const resetPassword=async(req,res)=>{
+    try {
+        const otp=await userService.resetPassword({
+            password:req.body.password, 
+            confirmPassword:req.body.confirmPassword, 
+            token:req.body.token
+        })
+        console.log(otp)
+        return res.json({
+            data:otp,
+            message:"otp created successfully"
+        })
+    } catch (error) {
+        console.log("Something went wrong in the controller");
+        throw error
+    }
+}
+
+
 
 /*const deleteEmployee = async (req, res) => { // in progress
     try {
@@ -227,4 +247,4 @@ const generateOtp=async(req,res)=>{
 
 }*/
 
-module.exports = { createUser, signin, isAuthenticated,generateOtp, isAdmin, addEmployee }
+module.exports = { createUser, signin, isAuthenticated,generateOtp, isAdmin, addEmployee,resetPassword }

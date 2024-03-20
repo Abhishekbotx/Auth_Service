@@ -34,6 +34,9 @@ module.exports = (sequelize, DataTypes) => {
       validate: {
         len: [3, 100]
       }
+    },
+    token: {
+      type: DataTypes.STRING,
     }
   }, {
     sequelize,

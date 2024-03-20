@@ -31,6 +31,46 @@ class UserRepository {
         }
     }
 
+    async update(data) {
+        try {
+            const user=await User.findOne({
+                where:{
+                    email:data.email
+                }
+            })
+            user.token=data.token
+            await user.save();
+            return user
+        } catch (error) {
+            console.error("Error occurred while deleting user in repository layer:", error);
+            throw new AppError(
+                'DeleteUserError',
+                'Error occurred while deleting user',
+                error.message,
+                StatusCodes.INTERNAL_SERVER_ERROR
+            );
+        }
+    }
+
+    async getUserByToken(token) {
+        try {
+            const user = await User.findOne({token:token});
+            if(!user){
+                throw new ClientError(
+                    'AttributeNotFound',
+                    'Invalid Email Sent In The Request',
+                    'Please Check email, as there is no email associated with this email ',
+                    StatusCodes.NOT_FOUND
+                )
+            }
+            return user;
+        } catch (error) {
+            console.log("Something went wrong on repository layer");
+            throw error;
+        }
+    }
+
+
     async getUserById(userId) {
         try {
             const user = await User.findByPk(userId);

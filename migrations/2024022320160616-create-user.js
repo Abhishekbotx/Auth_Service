@@ -24,6 +24,9 @@ module.exports = {
           len: [3, 300]
         }
       },
+      token: {
+        type: Sequelize.STRING,
+      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE

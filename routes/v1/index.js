@@ -37,6 +37,11 @@ router.post(
     
     UserController.generateOtp
 );
+router.post(
+    '/resetPassword', 
+    
+    UserController.resetPassword
+);
 
 
 module.exports = router;
